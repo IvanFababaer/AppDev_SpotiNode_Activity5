@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Music</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1db954;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1f1f1f;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="text"], input[type="file"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #1db954;
+            border-radius: 5px;
+            background-color: #2e2e2e;
+            color: #fff;
+        }
+
+        button {
+            background-color: #1db954;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+            margin: 10px; /* Added margin for spacing */
+        }
+
+        button:hover {
+            background-color: #1aa34a;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Space buttons evenly */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Music</h1>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="text" name="title" placeholder="Song Title" required>
+            <input type="text" name="artist" placeholder="Artist" required>
+            <input type="file" name="musicFile" accept="audio/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        
+        <div class="button-container">
+            <button onclick="window.location.href='/'">Back to Home</button>
+  
+        </div>
+    </div>
+</body>
+</html>

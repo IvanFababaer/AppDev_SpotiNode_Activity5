@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #1f1f1f;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            color: #1db954;
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+
+        .music-section {
+            margin: 30px 0;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .now-playing {
+            background-color: #2e2e2e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .now-playing div {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #1db954;
+        }
+
+        th {
+            background-color: #1db954;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        td {
+            background-color: #2e2e2e;
+        }
+
+        .table-row:hover {
+            background-color: #333;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+            margin-bottom: 30px; 
+            text-align: center;
+        }
+
+        .sort-button {
+            margin-right: auto; 
+        }
+
+        .view-button, button {
+            background-color: #1db954;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin: 0 5px; /* Margin between buttons */
+        }
+
+        .view-button:hover, button:hover {
+            background-color: #1aa34a;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .view-button, button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to TuneIFY</h1>
+
+        <div class="music-section">
+            <h2>Now Playing</h2>
+            <div class="now-playing">
+                <div id="nowPlayingTitle">Title: N/A</div>
+                <div id="nowPlayingArtist">Artist: N/A</div>
+            </div>
+            <audio id="audioPlayer" class="audio-player" controls>
+                <source id="audioSource" src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <button class="view-button" id="nextButton" onclick="playNext()">Next</button>
+            <button class="view-button" id="pauseButton" onclick="togglePause()">Pause</button>
+            <button class="view-button" id="shuffleButton" onclick="shuffleSongs()">Shuffle</button>
+        </div>
+
+        <div class="header-section">
+            <button class="view-button sort-button" onclick="sortMusic('alphabetical')">Sort</button>
+            <button class="view-button" onclick="window.location.href='/music'">Upload</button>  
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Artist</th>
+                    <th>Play</th>
+                </tr>
+            </thead>
+            <tbody id="musicLibrary">
+                <% musicList.forEach((music, index) => { %>
+                <tr class="table-row">
+                    <td><%= music.title %></td>
+                    <td><%= music.artist %></td>
+                    <td>
+                        <button onclick="playMusic('<%= music.title %>', '<%= music.artist %>', '<%= '/' + music.file_path %>', <%= index %>);">Play</button>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let currentSongIndex = -1; // Initialize the current song index
+        const musicList = <%- JSON.stringify(musicList) %>; // Get the music list from the server
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        function playMusic(title, artist, musicSrc, index) {
+            const audioSource = document.getElementById('audioSource');
+            const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+            const nowPlayingArtist = document.getElementById('nowPlayingArtist');
+
+            audioSource.src = musicSrc;
+            audioPlayer.load();
+            audioPlayer.play();
+
+            nowPlayingTitle.textContent = 'Title: ' + title;
+            nowPlayingArtist.textContent = 'Artist: ' + artist;
+
+            currentSongIndex = index; // Update the current song index
+
+            // Add event listener for when the song ends
+            audioPlayer.onended = playNext; // Automatically play the next song when the current one ends
+
+            console.log("Now playing:", title, "by", artist, "at index", currentSongIndex); // Debugging line
+        }
+
+        function playNext() {
+            if (musicList.length === 0) {
+                console.log("No music available to play."); // Debugging line
+                return;
+            }
+            currentSongIndex++;
+            if (currentSongIndex >= musicList.length) {
+                currentSongIndex = 0; // Loop back to the first song if at the end
+            }
+            const nextMusic = musicList[currentSongIndex];
+            playMusic(nextMusic.title, nextMusic.artist, '/' + nextMusic.file_path, currentSongIndex);
+        }
+
+        function shuffleSongs() {
+            // Shuffle the music list randomly
+            musicList.sort(() => Math.random() - 0.5);
+            currentSongIndex = -1; // Reset the index
+            playNext(); // Play the first song in the shuffled list
+        }
+
+        function togglePause() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                document.getElementById('pauseButton').textContent = 'Pause';
+            } else {
+                audioPlayer.pause();
+                document.getElementById('pauseButton').textContent = 'Play';
+            }
+        }
+
+        function sortMusic(type) {
+            let sortedMusicList;
+
+            if (type === 'alphabetical') {
+                sortedMusicList = musicList.sort((a, b) => a.title.localeCompare(b.title));
+            }
+
+            const musicLibrary = document.getElementById('musicLibrary');
+            musicLibrary.innerHTML = sortedMusicList.map((music, index) => `
+                <tr class="table-row">
+                    <td>${music.title}</td>
+                    <td>${music.artist}</td>
+                    <td><button onclick="playMusic('${music.title}', '${music.artist}', '/${music.file_path}', ${index});">Play</button></td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
